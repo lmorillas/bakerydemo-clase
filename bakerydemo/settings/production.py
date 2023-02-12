@@ -6,6 +6,8 @@ import dj_database_url
 import django_cache_url
 
 from .base import *  # noqa: F403
+import dotenv
+dotenv.load_dotenv()
 
 DEBUG = os.getenv("DJANGO_DEBUG", "off") == "on"
 
@@ -41,9 +43,12 @@ db_from_env = dj_database_url.config(conn_max_age=500)
 DATABASES["default"].update(db_from_env)
 
 # AWS creds may be used for S3 and/or Elasticsearch
-AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID", "")
-AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY", "")
-AWS_REGION = os.getenv("AWS_REGION", "")
+# Añadimos aws session token, necesario para los learner labs
+AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID".lower(), "")
+AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY".lower(), "")
+AWS_REGION = os.getenv("AWS_REGION".lower(), "")
+AWS_SESSION_TOKEN=os.getenv('aws_session_token', '')
+
 
 # configure CACHES from CACHE_URL environment variable (defaults to locmem if no CACHE_URL is set)
 CACHES = {"default": django_cache_url.config()}
