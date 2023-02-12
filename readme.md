@@ -2,7 +2,6 @@
 
 Probar repositorio y corrección de errores
 
-```bash
 ## Vagrantfile
 Revisar
 
