@@ -7,6 +7,9 @@ from wagtail.fields import StreamField
 from wagtail.models import DraftStateMixin, Page, RevisionMixin
 from wagtail.search import index
 from wagtail.snippets.models import register_snippet
+from wagtail.api import APIField
+from rest_framework import serializers
+
 
 from bakerydemo.base.blocks import BaseStreamBlock
 
@@ -30,6 +33,16 @@ class Country(models.Model):
 
     class Meta:
         verbose_name_plural = "Countries of Origin"
+
+
+class CountrySerializer(serializers.ModelSerializer):
+    '''
+    A serializer for the Country model'''
+    class Meta:
+        model = Country
+        fields = (
+            "title",    
+        )
 
 
 @register_snippet
@@ -140,6 +153,11 @@ class BreadPage(Page):
     ]
 
     parent_page_types = ["BreadsIndexPage"]
+
+    api_fields = [
+        APIField('origin', serializer=CountrySerializer()),
+        APIField('introduction'),  # This will nest the relevant BlogPageAuthor objects in the API response
+    ]
 
 
 class BreadsIndexPage(Page):
