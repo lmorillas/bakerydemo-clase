@@ -10,6 +10,7 @@ import dotenv
 dotenv.load_dotenv()
 
 DEBUG = os.getenv("DJANGO_DEBUG", "off") == "on"
+DEBUG = True
 
 # DJANGO_SECRET_KEY *should* be specified in the environment. If it's not, generate an ephemeral key.
 if "DJANGO_SECRET_KEY" in os.environ:
@@ -46,9 +47,9 @@ DATABASES["default"].update(db_from_env)
 # Añadimos aws session token, necesario para los learner labs
 AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID".lower(), "")
 AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY".lower(), "")
-AWS_REGION = os.getenv("AWS_REGION".lower(), "")
+AWS_REGION = os.getenv("AWS_REGION", "us-east-1")
+AWS_S3_REGION_NAME = 'us-east-1'
 AWS_SESSION_TOKEN=os.getenv('aws_session_token', '')
-
 
 # configure CACHES from CACHE_URL environment variable (defaults to locmem if no CACHE_URL is set)
 CACHES = {"default": django_cache_url.config()}
@@ -114,25 +115,33 @@ if "AWS_STORAGE_BUCKET_NAME" in os.environ:
     INSTALLED_APPS.append("storages")
 
     # s3 bucket settings
-    AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID'.lower())
-    AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY'.lower())
-    AWS_SESSION_TOKEN = os.getenv('AWS_SESSION_TOKEN'.lower())
     AWS_DEFAULT_ACL = None
     AWS_S3_OBJECT_PARAMETERS = {'CacheControl': 'max-age=86400'}
     AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
-    # AWS_AUTO_CREATE_BUCKET = True
+
+    AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID".lower(), "")
+    AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY".lower(), "")
+    # AWS_REGION = os.getenv("AWS_REGION", "us-east-1")
+    AWS_SESSION_TOKEN=os.getenv('aws_session_token', '')
+
+    print('*'*80)
+    print(f'{AWS_ACCESS_KEY_ID} \n{AWS_SECRET_ACCESS_KEY} \n{AWS_SESSION_TOKEN} \n{AWS_STORAGE_BUCKET_NAME} \n{AWS_S3_CUSTOM_DOMAIN}')
+    AWS_AUTO_CREATE_BUCKET = True
 
     # s3 static settings
-    STATIC_LOCATION = 'static'
-    STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{STATIC_LOCATION}/'
-    STATICFILES_STORAGE = 'bakerydemo.storage_backends.StaticStorage'
+    # STATIC_LOCATION = 'static'
+    # STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{STATIC_LOCATION}/'
+    # STATICFILES_STORAGE = 'bakerydemo.storage_backends.StaticStorage'
     # s3 public media settings
-    PUBLIC_MEDIA_LOCATION = 'media'
-    MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{PUBLIC_MEDIA_LOCATION}/'
-    DEFAULT_FILE_STORAGE = 'bakerydemo.storage_backends.PublicMediaStorage'
-    # s3 private media settings
-    PRIVATE_MEDIA_LOCATION = 'private'
-    PRIVATE_FILE_STORAGE = 'bakerydemo.storage_backends.PrivateMediaStorage'
+    # PUBLIC_MEDIA_LOCATION = 'media'
+    # MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{PUBLIC_MEDIA_LOCATION}/'
+    # DEFAULT_FILE_STORAGE = 'bakerydemo.storage_backends.PublicMediaStorage'
+    # # s3 private media settings
+    # PRIVATE_MEDIA_LOCATION = 'private'
+    # PRIVATE_FILE_STORAGE = 'bakerydemo.storage_backends.PrivateMediaStorage'
+
+    MEDIA_URL = "https://%s/" % AWS_S3_CUSTOM_DOMAIN
+    DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
 
 if "GS_BUCKET_NAME" in os.environ:
     GS_BUCKET_NAME = os.getenv("GS_BUCKET_NAME")

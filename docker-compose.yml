@@ -5,7 +5,7 @@ services:
     build: ./nginx
     restart: always
     ports:
-      - 80:80
+      - 8000:80
     depends_on:
       - wagtail 
 
@@ -21,6 +21,8 @@ services:
     depends_on:
       - db
       - redis
+    volumes:
+      - .:/code
     # desarrollo
     # command: python manage.py runserver 0.0.0.0:8000
     # produccion -> gunicorn proyecto
